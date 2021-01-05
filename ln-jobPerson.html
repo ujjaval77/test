@@ -17,51 +17,43 @@
   <ln-person name="teamMmbers"></ln-person>
   <script src="elements.js" defer></script>
   <script>
-    // var input =`
-    //   Photograph: /img/team/Paritosh_Chibber.jpg  
-    //   Name: Paritosh Chhibber  
-    //   Subtitle: Globetrotter  
-    //   Description: A UX practitioner and mentor, he champions solutions that are a perfect intersection of design, psychology and business. He generates innovative ideas from thin air and excels at making things better.  
-    //   Role: Co-founder & Director  
-    //   Experience: 7+ yrs exp  
-    //   LinkedIn: https://www.linkedin.com/in/pchhibber/  
-    //   ---
-    //   Photograph: /img/team/Amol_Hadkar.jpg  
-    //   Name: Amol Hadkar  
-    //   Subtitle: Weekend Cricketer  
-    //   Description: Creative at heart, his midas' touch turns even the most complex business needs into gold user interfaces. He's the seasoned hand behind Locusnine's visceral design magic.  
-    //   Role: Co-founder & Director  
-    //   Experience: 14+ yrs exp  
-    //   LinkedIn: https://www.linkedin.com/in/amolhadkar/  
-    //   ---`
     // get markdown content  
-    var input = 'https://hi5rzy9c0e.execute-api.ap-south-1.amazonaws.com/dev/team.md';
 
-
-    $.ajax({
-      url: input,
-      type: 'GET',
-      dataType: 'json',
-      headers: {'accept': 'application/vnd.github.v3.raw+json'},
-      success: function (result) {
+    fetch('https://hi5rzy9c0e.execute-api.ap-south-1.amazonaws.com/dev/team.md', { headers: { accept: 'application/vnd.github.v3.raw+json' } })
+      .then(function (data) { return data.text() })
+      .then(function (data) {
+        console.log(data)
         var results = [];
 
-        var teamMembers = input.split('---');
+        var teamMembers = data.split('---');
         for (i = 0; i < teamMembers.length; i++) {
           var teammember = teamMembers[i];
           var properties = teammember.split('\n');
           var teamMemberObj = {};
           for (j = 0; j < properties.length; j++) {
+            properties = properties.filter(Boolean);
             var multiple_property = properties[j];
             var single_property = multiple_property.split('**');
-            teamMemberObj[single_property[0]] = single_property[1];
+            teamMemberObj[single_property[1]] = single_property[2].trim();
           }
           // Logic to seperate Key and Value
           results.push(teamMemberObj);
         }
-      }
+        for (k = 0; k < results.length; k++) {
+      var ln_person = document.createElement('ln-person');
+      document.body.appendChild(ln_person);
+      ln_person.name= results[k].Name ; //Name
+      ln_person.identityPhrase= results[k].Subtitle;       //Subtitle
+      ln_person.linkedin_id= results[k].LinkedIn;          //URL
+      ln_person.image= results[k].Photograph ;                //Image
+      ln_person.description= results[k].Description ;          //Description
+      ln_person.designation= results[k].Role ;          //Designation
+      ln_person.experience= results[k].Experience ;           //Experience
     }
-    );
+      })
+
+    
+
   </script>
 
 </body>
